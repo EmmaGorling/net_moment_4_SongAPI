@@ -11,4 +11,14 @@ public class SongDbContext : DbContext {
 
     // Create tables
     public DbSet<Song> Songs { get; set; }
+    public DbSet<Category> Categories { get; set; }
+
+    // Relation table
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Song>()
+            .HasMany(s => s.Categories)
+            .WithMany(c => c.Songs)
+            .UsingEntity(j => j.ToTable("SongCategories"));
+    }
 }

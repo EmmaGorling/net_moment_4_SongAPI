@@ -25,7 +25,9 @@ namespace SongAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Song>>> GetSongs()
         {
-            return await _context.Songs.ToListAsync();
+            return await _context.Songs
+                            .Include(s => s.Categories)
+                            .ToListAsync();
         }
 
         // GET: api/Song/5
@@ -76,8 +78,23 @@ namespace SongAPI.Controllers
         // POST: api/Song
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Song>> PostSong(Song song)
+        public async Task<ActionResult<Song>> PostSong(CreateSongDto songDto)
         {
+            // Create the Song entity based on the DTO
+            var song = new Song
+            {
+                Artist = songDto.Artist,
+                Title = songDto.Title,
+                Length = songDto.Length
+            };
+
+            // Retrieve the categories based on the IDs
+            var categories = await _context.Categories
+                            .Where(c => songDto.CategoryIds.Contains(c.Id))
+                            .ToListAsync();
+
+            song.Categories = categories;
+
             _context.Songs.Add(song);
             await _context.SaveChangesAsync();
 
