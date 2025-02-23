@@ -11,5 +11,4 @@ public class Song {
     public string? Title  { get; set; }
     [Required]
     public int Length { get; set; }
-    public List<Category> Categories { get; set; } = new List<Category>();
 }
