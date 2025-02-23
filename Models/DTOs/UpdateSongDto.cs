@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace SongAPI.Models;
+namespace SongApi.Models;
 
-public class CreateSongDto {
+public class UpdateSongDto {
+    public int Id { get; set; }
     [Required(ErrorMessage = "Ange en artist")]
     public string Artist { get; set; }
     
