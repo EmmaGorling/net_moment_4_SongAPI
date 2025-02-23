@@ -11,4 +11,6 @@ public class Song {
     public string? Title  { get; set; }
     [Required]
     public int Length { get; set; }
+    [Required]
+    public string Category { get; set; }
 }
