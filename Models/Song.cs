@@ -10,6 +10,5 @@ public class Song {
     public string? Title { get; set; }
     [Required(ErrorMessage = "Ange låtens längd i sekunder")]
     public int Length { get; set; }
-
-    public string? Category { get; set; }
+    public List<Category>? Categories { get; set; }
 }
