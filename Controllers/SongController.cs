@@ -49,12 +49,31 @@ namespace SongAPI.Controllers
         // PUT: api/Song/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutSong(int id, Song song)
+        public async Task<IActionResult> PutSong(int id, CreateSongDto songDto)
         {
-            if (id != song.Id)
+            if (id != songDto.Id)
             {
                 return BadRequest();
             }
+
+            var song = await _context.Songs
+                            .Include(s => s.Categories)
+                            .FirstOrDefaultAsync(s => s.Id == id);
+
+            if(song == null) {
+                return NotFound();
+            }
+
+            // Update song-data
+            song.Artist = songDto.Artist;
+            song.Title = songDto.Title;
+            song.Length = songDto.Length;
+
+            // Update categories based on Id's in req
+            song.Categories = await _context.Categories
+                                        .Where(c => songDto.Categories.Contains(c.Id))
+                                        .ToListAsync();
+
 
             _context.Entry(song).State = EntityState.Modified;
 
@@ -80,8 +99,20 @@ namespace SongAPI.Controllers
         // POST: api/Song
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Song>> PostSong(Song song)
+        public async Task<ActionResult<CreateSongDto>> PostSong(CreateSongDto songDto)
         {
+            var song = new Song 
+            {
+                Artist = songDto.Artist,
+                Title = songDto.Title,
+                Length = songDto.Length
+            };
+
+            // Get the categories based on Id's in req
+            song.Categories = await _context.Categories
+                                        .Where(c => songDto.Categories.Contains(c.Id))
+                                        .ToListAsync();
+
             _context.Songs.Add(song);
             await _context.SaveChangesAsync();
 

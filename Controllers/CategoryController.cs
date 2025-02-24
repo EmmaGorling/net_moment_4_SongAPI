@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using songAPI.Models;
+using SongApi.Models;
 using SongAPI.Data;
 using SongAPI.Models;
 
@@ -30,16 +32,31 @@ namespace SongAPI.Controllers
 
         // GET: api/Category/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Category>> GetCategory(int id)
+        public async Task<ActionResult<CategoryDto>> GetCategory(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
+            var category = await _context.Categories
+                                    .Include(c => c.Songs)
+                                    .FirstOrDefaultAsync(c => c.Id == id);
 
             if (category == null)
             {
                 return NotFound();
             }
 
-            return category;
+            var showCategory = new CategoryDto
+            {
+                Id = category.Id,
+                Name = category.Name,
+                Songs = category.Songs.Select(s => new SongDto
+                {
+                    Id = s.Id,
+                    Artist = s.Artist,
+                    Title = s.Title,
+                    Length = s.Length
+                }).ToList()
+            };
+
+            return showCategory;
         }
 
         // PUT: api/Category/5
